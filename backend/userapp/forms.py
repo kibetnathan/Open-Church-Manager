@@ -1,30 +1,23 @@
 from django import forms
 from django.contrib.auth.forms import AdminUserCreationForm, UserChangeForm
-from django_registration.forms import RegistrationForm
 from .models import CustomUser, Profile
 from django.contrib.auth.models import Group
 
-class CustomUserCreationForm(AdminUserCreationForm):
 
+class CustomUserCreationForm(AdminUserCreationForm):
     class Meta:
         model = CustomUser
         fields = ("username", "email", "first_name", "last_name")
 
-class CustomUserChangeForm(UserChangeForm):
 
+class CustomUserChangeForm(UserChangeForm):
     class Meta:
         model = CustomUser
         fields = ("username", "email")
-        
-from django import forms
-from django.contrib.auth.models import Group
-from .models import CustomUser, Profile
+
 
 class CustomRegistrationForm(forms.ModelForm):
-    DoB = forms.DateField(
-        widget=forms.DateInput(attrs={'type': 'date'}),
-        required=True
-    )
+    DoB = forms.DateField(widget=forms.DateInput(attrs={"type": "date"}), required=True)
     campus = forms.CharField(required=False)
     phone_number = forms.CharField(required=False)
     school = forms.CharField(required=False)
@@ -53,3 +46,4 @@ class CustomRegistrationForm(forms.ModelForm):
             user.groups.add(member_group)
 
         return user
+

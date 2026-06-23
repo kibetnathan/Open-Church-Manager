@@ -20,192 +20,182 @@ import cloudinary.api
 import dj_database_url
 import firebase_admin
 from firebase_admin import credentials
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING keep the secret key used in production secret
-SECRET_KEY = config('SECRET_KEY', default='django-insecure-=d=4)ew!ym&076!3+0_to5=)tvlkz)wv2m-h9_jy0=uvkzsh35')
+SECRET_KEY = config(
+    "SECRET_KEY",
+    default="django-insecure-=d=4)ew!ym&076!3+0_to5=)tvlkz)wv2m-h9_jy0=uvkzsh35",
+)
 
-DEBUG = config('DEBUG', default=False, cast=bool)
+DEBUG = config("DEBUG", default=False, cast=bool)
 
 # 1 Get the value from environment but provide local defaults for your Mac
-raw_hosts = config('ALLOWED_HOSTS', default='localhost,127.0.0.1')
+raw_hosts = config("ALLOWED_HOSTS", default="localhost,127.0.0.1")
 
-ALLOWED_HOSTS = [host.strip() for host in raw_hosts.split(',') if host.strip()]
+ALLOWED_HOSTS = [host.strip() for host in raw_hosts.split(",") if host.strip()]
 
 # 3 The "Render Safety Net" This automatically adds 'opencms.onrender.com'
 # ONLY when running on Render's servers
-RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 
-
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'userapp',
-    'mainapp',
-    'tailwind',
-    'theme',
-    'django_browser_reload',
-    'cloudinary_storage',
-    'cloudinary',
-    'rest_framework',
-    'communication',
-    'taggit',
-    'corsheaders',
-    'drf_spectacular',
-    'django_filters',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "userapp",
+    "mainapp",
+    "django_browser_reload",
+    "cloudinary_storage",
+    "cloudinary",
+    "rest_framework",
+    "communication",
+    "taggit",
+    "corsheaders",
+    "drf_spectacular",
+    "django_filters",
 ]
 
 
-TAILWIND_APP_NAME = 'theme'
 INTERNAL_IPS = ["127.0.0.1"]
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
-    'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware', 
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = 'church.urls'
+ROOT_URLCONF = "church.urls"
 
+# TEMPLATES ARE NOT CURRENTLY IN USE
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [
             BASE_DIR / "templates",
         ],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-                'mainapp.context.profile_processor',
-                'mainapp.context.global_stats'
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+                "mainapp.context.profile_processor",
+                "mainapp.context.global_stats",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'church.wsgi.application'
+WSGI_APPLICATION = "church.wsgi.application"
 
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
 cloudinary.config(
-    cloud_name = config('CLOUDINARY_CLOUD_NAME'),
-    api_key = config('CLOUDINARY_API_KEY'),
-    api_secret = config('CLOUDINARY_API_SECRET')
+    cloud_name=config("CLOUDINARY_CLOUD_NAME"),
+    api_key=config("CLOUDINARY_API_KEY"),
+    api_secret=config("CLOUDINARY_API_SECRET"),
 )
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': config('POSTGRES_DB', 'mydatabase'),
-#         'USER': config('POSTGRES_USER', 'myuser'),
-#         'PASSWORD': config('POSTGRES_PASSWORD', ''),
-#         'HOST': config('POSTGRES_HOST', 'localhost'),
-#         'PORT': config('POSTGRES_PORT', '5432'),
-#     }
-# }
+
+# Database config with dj_database_url
 DATABASES = {
-    'default': dj_database_url.config(
-        default=f"postgresql://{config('POSTGRES_USER', 'myuser')}:{config('POSTGRES_PASSWORD', '')}@{config('POSTGRES_HOST', 'localhost')}:{config('POSTGRES_PORT', '5432')}/{config('POSTGRES_DB', 'mydatabase')}",
-        conn_max_age=600
+    "default": dj_database_url.config(
+        default=f"postgresql://{config('POSTGRES_USER', 'myuser')}:{
+            config('POSTGRES_PASSWORD', '')
+        }@{config('POSTGRES_HOST', 'localhost')}:{config('POSTGRES_PORT', '5432')}/{
+            config('POSTGRES_DB', 'mydatabase')
+        }",
+        conn_max_age=600,
     )
 }
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = "UTC"
 
 USE_I18N = True
 
 USE_TZ = True
 
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
 AUTHENTICATION_BACKENDS = [
-    'userapp.backends.CustomAuthBackend',
-    'django.contrib.auth.backends.ModelBackend',  # Default authentication backend
+    "userapp.backends.CustomAuthBackend",
+    "django.contrib.auth.backends.ModelBackend",  # Default authentication backend
 ]
-AUTH_USER_MODEL = 'userapp.CustomUser'
+AUTH_USER_MODEL = "userapp.CustomUser"
 
 REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 10,
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        'userapp.authentication.FirebaseAuthentication',
+        "userapp.authentication.FirebaseAuthentication",
         # "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
 }
-SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
-    "AUTH_HEADER_TYPES": ("Bearer",),
-}
+# SIMPLE_JWT = {
+#     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
+#     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+#     "AUTH_HEADER_TYPES": ("Bearer",),
+# }
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
-LOGOUT_REDIRECT_URL = "/accounts/login/"
+# LOGOUT_REDIRECT_URL = "/accounts/login/"
 
-CORS_ALLOW_ALL_ORIGINS = False # Reccomended for development never use in production
+# Reccomended True for development never use in production
+CORS_ALLOW_ALL_ORIGINS = False
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:5173',
-    'http://localhost:5174',
-
-    "https://opencms.vercel.app", # Your actual React production URL
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "https://opencms.vercel.app",  # Your actual React production URL
     "https://opencms-q36g.onrender.com",
-
 ]
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = [
-    'content-type',
-    'authorization',
-    'x-csrftoken',
-    'x-requested-width'
+    "content-type",
+    "authorization",
+    "x-csrftoken",
+    "x-requested-width",
 ]
 CORS_ALLOW_METHODS = [
     "DELETE",
@@ -215,6 +205,8 @@ CORS_ALLOW_METHODS = [
     "POST",
     "PUT",
 ]
+
+# Get firebase key
 FIREBASE_PATH = BASE_DIR / "firebase-key.json"
 
 if FIREBASE_PATH.exists():
@@ -228,4 +220,4 @@ else:
     print(f"WARNING: Firebase key not found at {FIREBASE_PATH}")
 
 # Paystack config
-PAYSTACK_SECRET_KEY=config('PAYSTACK_SECRET_KEY')
+PAYSTACK_SECRET_KEY = config("PAYSTACK_SECRET_KEY")

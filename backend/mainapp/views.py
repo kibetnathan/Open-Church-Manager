@@ -8,12 +8,38 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, BasePermission
 from django.utils import timezone
 from django.db.models import Q
-from .models import LeadershipTeam, Services, Department, FellowshipGroup, Course, Equipment, MemorizeVerse, MemorizationAttempt, ReadingPlan, ReadingPlanMember, CharityOrganisation
-from .serializers import LeadershipTeamSerializer, ServicesSerializer, DepartmentSerializer, FellowshipGroupSerializer, CourseSerializer, EquipmentSerializer, MemorizeVerseSerializer, MemorizeVerseCreateSerializer, MemorizationAttemptSerializer, ReviewSerializer, ReadingPlanSerializer, ReadingPlanCreateSerializer, CharityOrganisationSerializer
+from .models import (
+    LeadershipTeam,
+    Services,
+    Department,
+    FellowshipGroup,
+    Course,
+    Equipment,
+    MemorizeVerse,
+    MemorizationAttempt,
+    ReadingPlan,
+    ReadingPlanMember,
+    CharityOrganisation,
+)
+from .serializers import (
+    LeadershipTeamSerializer,
+    ServicesSerializer,
+    DepartmentSerializer,
+    FellowshipGroupSerializer,
+    CourseSerializer,
+    EquipmentSerializer,
+    MemorizeVerseSerializer,
+    MemorizeVerseCreateSerializer,
+    MemorizationAttemptSerializer,
+    ReviewSerializer,
+    ReadingPlanSerializer,
+    ReadingPlanCreateSerializer,
+    CharityOrganisationSerializer,
+)
 
 
 def is_pastor(user):
-    return user.groups.filter(name='Pastors').exists()
+    return user.groups.filter(name="Pastors").exists()
 
 
 class LeadershipTeamViewSet(viewsets.ModelViewSet):
@@ -24,8 +50,10 @@ class LeadershipTeamViewSet(viewsets.ModelViewSet):
     Routes (router prefix 'leadership/'):
         GET /leadership/, POST /leadership/, GET|PUT|PATCH|DELETE /leadership/{id}/
     """
-    queryset = LeadershipTeam.objects.all().order_by('id')
+
+    queryset = LeadershipTeam.objects.all().order_by("id")
     serializer_class = LeadershipTeamSerializer
+
 
 class ServicesViewSet(viewsets.ModelViewSet):
     """
@@ -35,8 +63,10 @@ class ServicesViewSet(viewsets.ModelViewSet):
     Routes (router prefix 'services/'):
         GET /services/, POST /services/, GET|PUT|PATCH|DELETE /services/{id}/
     """
-    queryset = Services.objects.all().order_by('id')
+
+    queryset = Services.objects.all().order_by("id")
     serializer_class = ServicesSerializer
+
 
 class FellowshipGroupViewSet(viewsets.ModelViewSet):
     """
@@ -46,8 +76,10 @@ class FellowshipGroupViewSet(viewsets.ModelViewSet):
         GET /fellowship-groups/, POST /fellowship-groups/,
         GET|PUT|PATCH|DELETE /fellowship-groups/{id}/
     """
-    queryset = FellowshipGroup.objects.all().order_by('id')
+
+    queryset = FellowshipGroup.objects.all().order_by("id")
     serializer_class = FellowshipGroupSerializer
+
 
 class CourseViewSet(viewsets.ModelViewSet):
     """
@@ -56,8 +88,10 @@ class CourseViewSet(viewsets.ModelViewSet):
     Routes (router prefix 'courses/'):
         GET /courses/, POST /courses/, GET|PUT|PATCH|DELETE /courses/{id}/
     """
-    queryset = Course.objects.all().order_by('id')
+
+    queryset = Course.objects.all().order_by("id")
     serializer_class = CourseSerializer
+
 
 class DepartmentViewSet(viewsets.ModelViewSet):
     """
@@ -66,8 +100,10 @@ class DepartmentViewSet(viewsets.ModelViewSet):
     Routes (router prefix 'departments/'):
         GET /departments/, POST /departments/, GET|PUT|PATCH|DELETE /departments/{id}/
     """
-    queryset = Department.objects.all().order_by('id')
+
+    queryset = Department.objects.all().order_by("id")
     serializer_class = DepartmentSerializer
+
 
 class EquipmentViewSet(viewsets.ModelViewSet):
     """
@@ -76,7 +112,8 @@ class EquipmentViewSet(viewsets.ModelViewSet):
     Routes (router prefix 'equipment/'):
         GET /equipment/, POST /equipment/, GET|PUT|PATCH|DELETE /equipment/{id}/
     """
-    queryset = Equipment.objects.all().order_by('id')
+
+    queryset = Equipment.objects.all().order_by("id")
     serializer_class = EquipmentSerializer
 
 
@@ -96,31 +133,31 @@ class MemorizeVerseViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return (
-            MemorizeVerse.objects
-            .filter(user=self.request.user)
-            .prefetch_related('attempts')
+        return MemorizeVerse.objects.filter(user=self.request.user).prefetch_related(
+            "attempts"
         )
 
     def get_serializer_class(self):
-        if self.action == 'create':
+        if self.action == "create":
             return MemorizeVerseCreateSerializer
         return MemorizeVerseSerializer
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
-    @action(detail=False, methods=['get'], url_path='due')
+    @action(detail=False, methods=["get"], url_path="due")
     def due(self, request):
         """Return all verses whose next_review is now or in the past."""
         due_verses = self.get_queryset().filter(next_review__lte=timezone.now())
         serializer = MemorizeVerseSerializer(due_verses, many=True)
-        return Response({
-            'count': due_verses.count(),
-            'results': serializer.data,
-        })
+        return Response(
+            {
+                "count": due_verses.count(),
+                "results": serializer.data,
+            }
+        )
 
-    @action(detail=True, methods=['post'], url_path='review')
+    @action(detail=True, methods=["post"], url_path="review")
     def review(self, request, pk=None):
         """
         Submit a review result for a single verse.
@@ -132,8 +169,8 @@ class MemorizeVerseViewSet(viewsets.ModelViewSet):
         review_serializer = ReviewSerializer(data=request.data)
         review_serializer.is_valid(raise_exception=True)
 
-        score = review_serializer.validated_data['score']
-        level = review_serializer.validated_data['level']
+        score = review_serializer.validated_data["score"]
+        level = review_serializer.validated_data["level"]
 
         MemorizationAttempt.objects.create(
             verse=verse,
@@ -148,7 +185,7 @@ class MemorizeVerseViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
 
-    @action(detail=False, methods=['get'], url_path='stats')
+    @action(detail=False, methods=["get"], url_path="stats")
     def stats(self, request):
         """Lightweight summary for a dashboard card."""
         from datetime import timedelta
@@ -159,14 +196,10 @@ class MemorizeVerseViewSet(viewsets.ModelViewSet):
         mastered = qs.filter(interval_days__gte=14).count()
 
         thirty_days_ago = timezone.now() - timedelta(days=30)
-        attempt_days = (
-            MemorizationAttempt.objects
-            .filter(
-                verse__user=request.user,
-                attempted_at__gte=thirty_days_ago,
-            )
-            .dates('attempted_at', 'day')
-        )
+        attempt_days = MemorizationAttempt.objects.filter(
+            verse__user=request.user,
+            attempted_at__gte=thirty_days_ago,
+        ).dates("attempted_at", "day")
 
         streak = 0
         check_date = timezone.now().date()
@@ -179,12 +212,14 @@ class MemorizeVerseViewSet(viewsets.ModelViewSet):
             else:
                 break
 
-        return Response({
-            'total': total,
-            'due_today': due_today,
-            'mastered': mastered,
-            'streak': streak,
-        })
+        return Response(
+            {
+                "total": total,
+                "due_today": due_today,
+                "mastered": mastered,
+                "streak": streak,
+            }
+        )
 
 
 class MemorizationAttemptViewSet(viewsets.ReadOnlyModelViewSet):
@@ -201,44 +236,44 @@ class MemorizationAttemptViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = MemorizationAttemptSerializer
 
     def get_queryset(self):
-        return (
-            MemorizationAttempt.objects
-            .filter(verse__user=self.request.user)
-            .select_related('verse')
-        )
+        return MemorizationAttempt.objects.filter(
+            verse__user=self.request.user
+        ).select_related("verse")
 
 
 # permissions
-
+# TODO: Move to a seperate permissons file
 class IsLeaderOrReadOnly(BasePermission):
     """
     Any authenticated user can read.
     Only users in a recognised leader group can create / update / delete.
     """
+
     LEADER_GROUPS = {
-        'Pastor',
-        'Leader',
-        'DG Leader',
-        'Department Leader',
-        'Course Leader',
+        "Pastor",
+        "Leader",
+        "DG Leader",
+        "Department Leader",
+        "Course Leader",
     }
 
     def has_permission(self, request, view):
         if not request.user.is_authenticated:
             return False
-        if request.method in ('GET', 'HEAD', 'OPTIONS'):
+        if request.method in ("GET", "HEAD", "OPTIONS"):
             return True
-        user_groups = set(request.user.groups.values_list('name', flat=True))
+        user_groups = set(request.user.groups.values_list("name", flat=True))
         return bool(user_groups & self.LEADER_GROUPS) or request.user.is_staff
 
     def has_object_permission(self, request, view, obj):
-        if request.method in ('GET', 'HEAD', 'OPTIONS'):
+        if request.method in ("GET", "HEAD", "OPTIONS"):
             return True
-        user_groups = set(request.user.groups.values_list('name', flat=True))
+        user_groups = set(request.user.groups.values_list("name", flat=True))
         return bool(user_groups & self.LEADER_GROUPS) or request.user.is_staff
 
 
 # viewset
+
 
 class CharityOrganisationViewSet(viewsets.ModelViewSet):
     """
@@ -251,7 +286,8 @@ class CharityOrganisationViewSet(viewsets.ModelViewSet):
         GET /charities/, POST /charities/ (leaders only),
         GET /charities/{id}/, PUT|PATCH|DELETE /charities/{id}/ (leaders only)
     """
-    queryset = CharityOrganisation.objects.all().order_by('id')
+
+    queryset = CharityOrganisation.objects.all().order_by("id")
     serializer_class = CharityOrganisationSerializer
     permission_classes = [IsLeaderOrReadOnly]
 
@@ -273,12 +309,12 @@ class ReadingPlanViewSet(viewsets.ModelViewSet):
     permission_classes = [IsLeaderOrReadOnly]
 
     def get_permissions(self):
-        if self.action in ('join', 'leave', 'my', 'list', 'retrieve'):
+        if self.action in ("join", "leave", "my", "list", "retrieve"):
             return [IsAuthenticated()]
         return super().get_permissions()
 
     def get_serializer_class(self):
-        if self.action in ('create', 'update', 'partial_update'):
+        if self.action in ("create", "update", "partial_update"):
             return ReadingPlanCreateSerializer
         return ReadingPlanSerializer
 
@@ -287,29 +323,33 @@ class ReadingPlanViewSet(viewsets.ModelViewSet):
         if not user.is_authenticated:
             return ReadingPlan.objects.none()
 
-        fellowship_ids = user.discipleship_group.values_list('id', flat=True)
-        department_ids = user.serving_team.values_list('id', flat=True)
-        course_ids     = user.ropes_class.values_list('id', flat=True)
+        fellowship_ids = user.discipleship_group.values_list("id", flat=True)
+        department_ids = user.serving_team.values_list("id", flat=True)
+        course_ids = user.ropes_class.values_list("id", flat=True)
 
-        return ReadingPlan.objects.filter(
-            is_active=True
-        ).filter(
-            Q(
-                fellowship_groups__isnull=True,
-                departments__isnull=True,
-                courses__isnull=True,
-            ) |
-            Q(fellowship_groups__in=fellowship_ids) |
-            Q(departments__in=department_ids) |
-            Q(courses__in=course_ids)
-        ).distinct().prefetch_related(
-            'fellowship_groups', 'departments', 'courses', 'memberships'
-        ).select_related('created_by')
+        return (
+            ReadingPlan.objects.filter(is_active=True)
+            .filter(
+                Q(
+                    fellowship_groups__isnull=True,
+                    departments__isnull=True,
+                    courses__isnull=True,
+                )
+                | Q(fellowship_groups__in=fellowship_ids)
+                | Q(departments__in=department_ids)
+                | Q(courses__in=course_ids)
+            )
+            .distinct()
+            .prefetch_related(
+                "fellowship_groups", "departments", "courses", "memberships"
+            )
+            .select_related("created_by")
+        )
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
 
-    @action(detail=True, methods=['post'], url_path='join')
+    @action(detail=True, methods=["post"], url_path="join")
     def join(self, request, pk=None):
         """
         Enrol the current user in the reading plan.
@@ -323,14 +363,14 @@ class ReadingPlanViewSet(viewsets.ModelViewSet):
         )
         return Response(
             {
-                'joined': True,
-                'created': created,
-                'member_count': ReadingPlanMember.objects.filter(plan=plan).count(),
+                "joined": True,
+                "created": created,
+                "member_count": ReadingPlanMember.objects.filter(plan=plan).count(),
             },
             status=status.HTTP_200_OK,
         )
 
-    @action(detail=True, methods=['post'], url_path='leave')
+    @action(detail=True, methods=["post"], url_path="leave")
     def leave(self, request, pk=None):
         """
         Remove the current user's membership from the reading plan.
@@ -339,26 +379,27 @@ class ReadingPlanViewSet(viewsets.ModelViewSet):
         plan's current member count.
         """
         plan = self.get_object()
-        ReadingPlanMember.objects.filter(
-            user=request.user, plan=plan
-        ).delete()
+        ReadingPlanMember.objects.filter(user=request.user, plan=plan).delete()
         return Response(
             {
-                'joined': False,
-                'member_count': ReadingPlanMember.objects.filter(plan=plan).count(),
+                "joined": False,
+                "member_count": ReadingPlanMember.objects.filter(plan=plan).count(),
             },
             status=status.HTTP_200_OK,
         )
 
-    @action(detail=False, methods=['get'], url_path='my')
+    @action(detail=False, methods=["get"], url_path="my")
     def my(self, request):
         """Return plans the current user has explicitly joined."""
-        joined_ids = ReadingPlanMember.objects.filter(
-            user=request.user
-        ).values_list('plan_id', flat=True)
+        joined_ids = ReadingPlanMember.objects.filter(user=request.user).values_list(
+            "plan_id", flat=True
+        )
         plans = self.get_queryset().filter(id__in=joined_ids)
-        serializer = ReadingPlanSerializer(plans, many=True, context={'request': request})
+        serializer = ReadingPlanSerializer(
+            plans, many=True, context={"request": request}
+        )
         return Response(serializer.data)
+
 
 class VerifyPaymentView(APIView):
     """
@@ -373,12 +414,15 @@ class VerifyPaymentView(APIView):
     Request:  { "reference": "<paystack_reference>" }
     Response: { "status": "verified"|"failed", "detail": "..." }
     """
+
     def post(self, request):
         """Verify a Paystack reference and return whether the transaction succeeded."""
-        reference = request.data.get('reference')
-        
+        reference = request.data.get("reference")
+
         if not reference:
-            return Response({"error": "No reference provided"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "No reference provided"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         # 1 Prepare the Paystack Verification URL
         url = f"https://api.paystack.co/transaction/verify/{reference}"
@@ -393,18 +437,22 @@ class VerifyPaymentView(APIView):
             response_data = response.json()
 
             # 3 Check if the transaction was successful
-            if response_data['status'] and response_data['data']['status'] == 'success':
+            if response_data["status"] and response_data["data"]["status"] == "success":
                 # CRITICAL Verify the amount matches your database record
-                amount_paid = response_data['data']['amount'] # in subunits eg Kobo/Cents
+                # in subunits eg Kobo/Cents
+                # amount_paid = response_data["data"]["amount"]
 
-                # Logic Update your Order model
-                # order = Order.objects.get(id=reference)
-                # order.paid = True
-                # order.save()
+                return Response(
+                    {"status": "verified", "detail": "Payment successful"},
+                    status=status.HTTP_200_OK,
+                )
 
-                return Response({"status": "verified", "detail": "Payment successful"}, status=status.HTTP_200_OK)
-            
-            return Response({"status": "failed", "detail": "Transaction not successful"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"status": "failed", "detail": "Transaction not successful"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         except requests.exceptions.RequestException as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

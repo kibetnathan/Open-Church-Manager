@@ -15,8 +15,8 @@ router.register(r"users", UserViewSet)
 urlpatterns = [
     path("register/", RegistrationAPIView.as_view(), name="register"),
     path("check-username/", UsernameCheckAPIView.as_view(), name="check-username"),
-    path("", include(router.urls)),
     path("users/me/", CurrentUserAPIView.as_view(), name="current-user"),
+    path("", include(router.urls)),
     path("groups/", GroupListView.as_view()),
 ]
 

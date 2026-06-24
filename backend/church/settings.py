@@ -10,7 +10,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
-from datetime import timedelta
 import os
 from pathlib import Path
 from decouple import config
@@ -80,7 +79,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "church.urls"
 
-# TEMPLATES ARE NOT CURRENTLY IN USE
+# TEMPLATES ARE NOT CURRENTLY IN USE, ONLY FOR ADMIN PAGE
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -93,8 +92,6 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "mainapp.context.profile_processor",
-                "mainapp.context.global_stats",
             ],
         },
     },

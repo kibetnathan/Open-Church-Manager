@@ -28,6 +28,8 @@ import AdminStreamPanel from "./components/AdminStreamPanel";
 import MemorizePage from "./pages/MemorizePage";
 import ReadingPlansPage from "./pages/ReadingPlan";
 import CharityOrganisationsPage from "./pages/CharityOrganisationsPage";
+import Navbar from "./components/Navbar";
+
 function App() {
   const initAuth = useAuthStore((state) => state.initAuth);
   const loading = useAuthStore((state) => state.loading);
@@ -87,6 +89,7 @@ function App() {
       <a href="#main-content" className="skip-link">
         Skip to main content
       </a>
+      <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/threads" element={<ThreadsPage />} />

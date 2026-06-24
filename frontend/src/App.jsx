@@ -23,12 +23,12 @@ import BiblePage from "./pages/BiblePage";
 import StreamingPage from "./pages/StreamingPage";
 import ProfilePage from "./pages/ProfilePage";
 import PageNotFound from "./pages/PageNotFound";
-import ComingSoon from "./pages/ComingSoon";
 import AdminStreamPanel from "./components/AdminStreamPanel";
 import MemorizePage from "./pages/MemorizePage";
 import ReadingPlansPage from "./pages/ReadingPlan";
 import CharityOrganisationsPage from "./pages/CharityOrganisationsPage";
 import Navbar from "./components/Navbar";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   const initAuth = useAuthStore((state) => state.initAuth);
@@ -43,7 +43,6 @@ function App() {
     return () => unsubscribe();
   }, [initAuth]);
 
-
   if (loading) {
     return (
       <div
@@ -53,12 +52,18 @@ function App() {
         aria-busy="true"
       >
         {/* Logo */}
-        <div className="font-cormorant text-3xl font-semibold tracking-[0.15em] text-black" aria-hidden="true">
+        <div
+          className="font-cormorant text-3xl font-semibold tracking-[0.15em] text-black"
+          aria-hidden="true"
+        >
           O<span className="text-amber-500">C</span>M
         </div>
 
         {/* Animated bar */}
-        <div className="w-32 h-px bg-divider relative overflow-hidden" aria-hidden="true">
+        <div
+          className="w-32 h-px bg-divider relative overflow-hidden"
+          aria-hidden="true"
+        >
           <div
             className="absolute top-0 left-0 h-full bg-amber-500"
             style={{
@@ -97,31 +102,43 @@ function App() {
         <Route path="/plans/verses" element={<MemorizePage />} />
         <Route path="/plans/reading" element={<ReadingPlansPage />} />
         <Route path="/streaming" element={<StreamingPage />} />
-        <Route path="/feed" element={<Feed />}>
-          <Route path="/feed/" element={<FeedChannel />} />
-          <Route path="/feed/post/:postId" element={<PostView />} />
-          <Route path="upload/" element={<PostForm />} />
-        </Route>
         <Route path="/auth" element={<AuthPage />}>
           <Route path="login" element={<LoginForm />} />
           <Route path="signup" element={<SignUpForm />} />
         </Route>
-        <Route path="/dashboard" element={<Dashboard />}>
-          <Route path="/dashboard/" element={<DashboardOverview />} />
-          <Route path="groups/fellowship" element={<Fellowships />} />
-          <Route path="groups/courses" element={<CourseDashboard />} />
-          <Route path="groups/departments" element={<DepartmentDashboard />} />
-          <Route path="groups/services" element={<ServicesDashboard />} />
-          <Route path="users/all" element={<UsersDashboard />} />
-          <Route path="users/leadership" element={<LeadershipDashboard />} />
-          <Route path="streaming" element={<AdminStreamPanel />} />
-          <Route path="outreach/charity" element={<CharityOrganisationDashboard />} />
-        </Route>
-        <Route path="/outreach/charity" element={<CharityOrganisationsPage />} />
+        <Route
+          path="/outreach/charity"
+          element={<CharityOrganisationsPage />}
+        />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="*" element={<PageNotFound />} />
         {/* {wipUrls.map((path) =>
           (<Route key={path} path={path} element={<ComingSoon/>}/>))} */}
+        {/* Auth Protected Routes */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/dashboard" element={<Dashboard />}>
+            <Route path="/dashboard/" element={<DashboardOverview />} />
+            <Route path="groups/fellowship" element={<Fellowships />} />
+            <Route path="groups/courses" element={<CourseDashboard />} />
+            <Route
+              path="groups/departments"
+              element={<DepartmentDashboard />}
+            />
+            <Route path="groups/services" element={<ServicesDashboard />} />
+            <Route path="users/all" element={<UsersDashboard />} />
+            <Route path="users/leadership" element={<LeadershipDashboard />} />
+            <Route path="streaming" element={<AdminStreamPanel />} />
+            <Route
+              path="outreach/charity"
+              element={<CharityOrganisationDashboard />}
+            />
+          </Route>
+          <Route path="/feed" element={<Feed />}>
+            <Route path="/feed/" element={<FeedChannel />} />
+            <Route path="/feed/post/:postId" element={<PostView />} />
+            <Route path="upload/" element={<PostForm />} />
+          </Route>
+        </Route>
       </Routes>
     </Router>
   );

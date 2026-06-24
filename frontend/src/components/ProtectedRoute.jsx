@@ -2,7 +2,7 @@ import useAuthStore from "../zustand/authStore";
 import { Outlet, Navigate } from "react-router-dom";
 
 function ProtectedRoute() {
-  const { user, loading } = useAuthStore;
+  const { token, loading } = useAuthStore((state) => state);
   if (loading)
     return (
       <div
@@ -48,7 +48,7 @@ function ProtectedRoute() {
       `}</style>
       </div>
     );
-  return user ? <Outlet /> : <Navigate to={"/auth/login"} />;
+  return token ? <Outlet /> : <Navigate to={"/auth/login"} />;
 }
 
 export default ProtectedRoute;

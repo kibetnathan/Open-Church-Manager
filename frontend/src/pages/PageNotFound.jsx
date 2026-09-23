@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import Navbar from '../components/Navbar';
 
 function PageNotFound() {
   useEffect(() => {
@@ -11,7 +10,6 @@ function PageNotFound() {
 
   return (
     <>
-      <Navbar />
       <div className="flex flex-col w-full min-h-screen justify-center items-center bg-amber-50">
         <div className="relative bg-porcelain border border-divider rounded-sm p-12 w-96 text-center shadow-md overflow-hidden">
           <div className='absolute -top-8 -right-6 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl pointer-events-none' ></div>

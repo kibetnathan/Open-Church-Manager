@@ -1,5 +1,4 @@
 import React from 'react';
-import Navbar from '../components/Navbar';
 
 // —— Illustration ———————————————————————————————————
 function Illustration() {
@@ -82,7 +81,6 @@ function Illustration() {
 function ComingSoon() {
   return (
     <>
-      <Navbar />
       <div
         className="flex flex-col w-full min-h-screen justify-center items-center bg-amber-50"
         style={{

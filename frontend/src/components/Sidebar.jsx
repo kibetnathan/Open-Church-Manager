@@ -98,12 +98,12 @@ function Sidebar() {
   const myFellowships = fellowships.filter((g) =>
     g.members?.includes(user?.id),
   );
-
+  // "sticky top-0 hidden md:flex flex-col w-95 h-screen bg-porcelain border-r border-divider"
   return (
     <>
       <aside
         aria-label="Primary"
-        className="sticky top-0 hidden md:flex flex-col w-95 h-screen bg-porcelain border-r border-divider"
+        className={`sticky top-0 hidden ${user && "md:flex"} flex-col w-95 h-screen bg-porcelain border-r border-divider`}
       >
         <div className="flex items-center justify-between px-6 h-16 border-b border-divider shrink-0">
           <NavLink
@@ -113,7 +113,10 @@ function Sidebar() {
           >
             O<span className="text-amber-600">C</span>M
           </NavLink>
-          <span className="w-1.5 h-1.5 rounded-full bg-amber-500" aria-hidden="true" />
+          <span
+            className="w-1.5 h-1.5 rounded-full bg-amber-500"
+            aria-hidden="true"
+          />
         </div>
 
         <nav aria-label="Sidebar" className="flex-1 px-3 py-4 overflow-y-auto">
@@ -428,10 +431,7 @@ function Sidebar() {
           </ul>
         </nav>
 
-        <NavLink
-          to="/profile"
-          className={navLinkClass}
-        >
+        <NavLink to="/profile" className={navLinkClass}>
           <svg
             className="w-3.5 h-3.5 shrink-0"
             fill="none"
@@ -504,7 +504,10 @@ function Sidebar() {
                   { to: "/dashboard/users/all", label: "All Members" },
                   { to: "/dashboard/users/leadership", label: "Leadership" },
                   { to: "/dashboard/streaming", label: "Streaming Dashboard" },
-                  { to: "/dashboard/outreach/charity", label: "Charity Organisations" },
+                  {
+                    to: "/dashboard/outreach/charity",
+                    label: "Charity Organisations",
+                  },
                 ].map(({ to, label, end }) => (
                   <li key={to}>
                     <NavLink

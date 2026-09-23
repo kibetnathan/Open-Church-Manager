@@ -1,11 +1,11 @@
-from django.db import transaction 
+from django.db import transaction
 from django.contrib.auth import authenticate, login
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import CustomUser, Profile
 from .serializers import UserSerializer, ProfileSerializer, GroupSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, viewsets
+from rest_framework import viewsets
 from .forms import CustomRegistrationForm
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.contrib.auth.models import Group
@@ -83,13 +83,14 @@ class ProfileViewSet(SoftDeleteViewSetMixin, viewsets.ModelViewSet):
         PATCH  /profiles/{user_id}/    — partial update
         DELETE /profiles/{user_id}/    — delete that profile
     """
+
     permission_classes = [IsAuthenticated]
-    queryset = Profile.objects.all().order_by('id')
+    queryset = Profile.objects.all().order_by("id")
     serializer_class = ProfileSerializer
 
     def get_object(self):
         print(f"DEBUG: Looking up Profile with user_id={self.kwargs['pk']}")
-        return get_object_or_404(Profile, user_id=self.kwargs['pk'])
+        return get_object_or_404(Profile, user_id=self.kwargs["pk"])
 
     def update(self, request, *args, **kwargs):
         print(f"DEBUG: Update request data: {request.data}")
@@ -109,6 +110,7 @@ class RegistrationAPIView(APIView):
     fields inside a single transaction. On success returns the serialised user (201);
     on form errors returns 400; on unexpected failure rolls back and returns 500.
     """
+
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -122,8 +124,11 @@ class RegistrationAPIView(APIView):
                 user = form.save()
         except Exception as e:
             return Response(
-                {"detail": "Profile creation failed. Please try again.", "error": str(e)},
-                status=500
+                {
+                    "detail": "Profile creation failed. Please try again.",
+                    "error": str(e),
+                },
+                status=500,
             )
 
         return Response({"user": UserSerializer(user).data}, status=201)
@@ -139,6 +144,7 @@ class UsernameCheckAPIView(APIView):
 
     Route: GET /username-check/?username=<value>
     """
+
     permission_classes = [AllowAny]
 
     def get(self, request):
@@ -149,10 +155,20 @@ class UsernameCheckAPIView(APIView):
             return Response({"error": "No username provided."}, status=400)
 
         if len(username) < 3:
-            return Response({"available": False, "reason": "Username must be at least 3 characters."})
+            return Response(
+                {
+                    "available": False,
+                    "reason": "Username must be at least 3 characters.",
+                }
+            )
 
         if len(username) > 30:
-            return Response({"available": False, "reason": "Username must be 30 characters or fewer."})
+            return Response(
+                {
+                    "available": False,
+                    "reason": "Username must be 30 characters or fewer.",
+                }
+            )
 
         exists = CustomUser.objects.filter(username__iexact=username).exists()
         return Response({"available": not exists})
@@ -168,19 +184,22 @@ class CurrentUserAPIView(APIView):
 
     Route: GET /me/
     """
+
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         """Return the identity and group memberships of `request.user`."""
         user = request.user
-        return Response({
-            "id": user.id,
-            "username": user.username,
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            "email": user.email,
-            "groups": [group.name for group in user.groups.all()]
-        })
+        return Response(
+            {
+                "id": user.id,
+                "username": user.username,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "email": user.email,
+                "groups": [group.name for group in user.groups.all()],
+            }
+        )
 
 
 class GroupListView(APIView):
@@ -192,6 +211,7 @@ class GroupListView(APIView):
 
     Route: GET /groups/
     """
+
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -217,16 +237,17 @@ class UserViewSet(viewsets.ModelViewSet):
         PATCH  /users/{id}/    — partial update (same email guard)
         DELETE /users/{id}/    — delete from Django + Firebase Auth
     """
+
     permission_classes = [IsAuthenticated]
-    queryset = CustomUser.objects.all().order_by('id')
+    queryset = CustomUser.objects.all().order_by("id")
     serializer_class = UserSerializer
 
     def update(self, request, *args, **kwargs):
         """Update a user, stripping `email` from the payload if the requester isn't the owner."""
         instance = self.get_object()
-        if request.user != instance and 'email' in request.data:
+        if request.user != instance and "email" in request.data:
             data = request.data.copy()
-            data.pop('email')
+            data.pop("email")
             request._full_data = data
         return super().update(request, *args, **kwargs)
 
@@ -242,7 +263,7 @@ class UserViewSet(viewsets.ModelViewSet):
                 # If the user is already gone from Firebase, we can proceed
                 pass
             except exceptions.FirebaseError as e:
-                # If it's a network or permission error, you might want 
+                # If it's a network or permission error, you might want
                 # to raise an exception to prevent the Django user from being deleted
                 raise Exception(f"Firebase deletion failed: {str(e)}")
         instance.delete()

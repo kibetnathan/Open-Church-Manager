@@ -1,17 +1,10 @@
 import React, { useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import useAuthStore from "../zustand/authStore";
 
 function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const user = useAuthStore((state) => state.user);
-  const navigate = useNavigate();
-
-  const handleHome = (e) => {
-    e.preventDefault();
-    navigate(user ? "/feed" : "/");
-    setMobileOpen(false);
-  };
 
   const navLinkClass = ({ isActive }) =>
     `font-coptic text-sm uppercase tracking-[0.18em] transition-all px-4 py-2 border-b-2 flex items-center h-full ${
@@ -26,7 +19,7 @@ function Navbar() {
   return (
     <header className="fixed w-full top-0 z-50">
       <nav
-        className="w-full flex items-center justify-between bg-porcelain/95 backdrop-blur-md border-b border-divider px-6 sm:px-10 h-20"
+        className={`w-full ${!user ? "flex" : "hidden"} items-center justify-between bg-porcelain/95 backdrop-blur-md border-b border-divider px-6 sm:px-10 h-20`}
         aria-label="Primary"
       >
         {/* Left Side: Logo + Main Nav */}
@@ -51,7 +44,7 @@ function Navbar() {
               </NavLink>
             </li>
             <li className="h-full flex items-center">
-              <NavLink to="/reading-plans" className={navLinkClass}>
+              <NavLink to="/plans/reading" className={navLinkClass}>
                 Reading Plans
               </NavLink>
             </li>

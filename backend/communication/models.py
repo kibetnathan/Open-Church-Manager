@@ -2,8 +2,9 @@ from django.db import models
 from cloudinary.models import CloudinaryField
 from django.conf import settings
 from taggit.managers import TaggableManager
+from soft_delete import SoftDeleteModel
 
-class Post(models.Model):
+class Post(SoftDeleteModel):
     image = CloudinaryField("image", null=True, blank=True)
     title = models.CharField(max_length=100)
     text = models.TextField()
@@ -19,7 +20,7 @@ class Post(models.Model):
     def __str__(self):
         return self.title
     
-class Comment(models.Model):
+class Comment(SoftDeleteModel):
     post = models.ForeignKey(
         Post,
         on_delete=models.CASCADE,

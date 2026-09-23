@@ -2,13 +2,14 @@ from rest_framework.response import Response
 from rest_framework import viewsets, permissions
 from .models import Post, Comment
 from .serializers import PostSerializer, CommentSerializer
+from soft_delete import SoftDeleteViewSetMixin
 from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 from rest_framework.parsers import MultiPartParser, FormParser
 
-class PostViewSet(viewsets.ModelViewSet):
+class PostViewSet(SoftDeleteViewSetMixin, viewsets.ModelViewSet):
     """
     CRUD endpoints for community Posts.
 
@@ -32,7 +33,7 @@ class PostViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user, published_date=timezone.now())
 
-class CommentViewSet(viewsets.ModelViewSet):
+class CommentViewSet(SoftDeleteViewSetMixin, viewsets.ModelViewSet):
     """
     CRUD endpoints for Comments on Posts.
 

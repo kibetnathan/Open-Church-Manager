@@ -10,13 +10,14 @@ from django.utils import timezone
 from django.db.models import Q
 from .models import LeadershipTeam, Services, Department, FellowshipGroup, Course, Equipment, MemorizeVerse, MemorizationAttempt, ReadingPlan, ReadingPlanMember, CharityOrganisation
 from .serializers import LeadershipTeamSerializer, ServicesSerializer, DepartmentSerializer, FellowshipGroupSerializer, CourseSerializer, EquipmentSerializer, MemorizeVerseSerializer, MemorizeVerseCreateSerializer, MemorizationAttemptSerializer, ReviewSerializer, ReadingPlanSerializer, ReadingPlanCreateSerializer, CharityOrganisationSerializer
+from soft_delete import SoftDeleteViewSetMixin
 
 
 def is_pastor(user):
     return user.groups.filter(name='Pastors').exists()
 
 
-class LeadershipTeamViewSet(viewsets.ModelViewSet):
+class LeadershipTeamViewSet(SoftDeleteViewSetMixin, viewsets.ModelViewSet):
     """
     CRUD for LeadershipTeam members (pastors, elders, and other named leaders shown
     on the public "Leadership" page).
@@ -27,7 +28,7 @@ class LeadershipTeamViewSet(viewsets.ModelViewSet):
     queryset = LeadershipTeam.objects.all().order_by('id')
     serializer_class = LeadershipTeamSerializer
 
-class ServicesViewSet(viewsets.ModelViewSet):
+class ServicesViewSet(SoftDeleteViewSetMixin, viewsets.ModelViewSet):
     """
     CRUD for weekly Services (name, time, description) shown on the public service
     schedule.
@@ -38,7 +39,7 @@ class ServicesViewSet(viewsets.ModelViewSet):
     queryset = Services.objects.all().order_by('id')
     serializer_class = ServicesSerializer
 
-class FellowshipGroupViewSet(viewsets.ModelViewSet):
+class FellowshipGroupViewSet(SoftDeleteViewSetMixin, viewsets.ModelViewSet):
     """
     CRUD for FellowshipGroups (small / discipleship groups members can join).
 
@@ -49,7 +50,7 @@ class FellowshipGroupViewSet(viewsets.ModelViewSet):
     queryset = FellowshipGroup.objects.all().order_by('id')
     serializer_class = FellowshipGroupSerializer
 
-class CourseViewSet(viewsets.ModelViewSet):
+class CourseViewSet(SoftDeleteViewSetMixin, viewsets.ModelViewSet):
     """
     CRUD for Courses offered by the church (classes, training, ROPES).
 
@@ -59,7 +60,7 @@ class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all().order_by('id')
     serializer_class = CourseSerializer
 
-class DepartmentViewSet(viewsets.ModelViewSet):
+class DepartmentViewSet(SoftDeleteViewSetMixin, viewsets.ModelViewSet):
     """
     CRUD for Departments (serving teams such as Media, Ushering, Worship).
 
@@ -69,7 +70,7 @@ class DepartmentViewSet(viewsets.ModelViewSet):
     queryset = Department.objects.all().order_by('id')
     serializer_class = DepartmentSerializer
 
-class EquipmentViewSet(viewsets.ModelViewSet):
+class EquipmentViewSet(SoftDeleteViewSetMixin, viewsets.ModelViewSet):
     """
     CRUD for Equipment tracked by the church (inventory of items owned or borrowed).
 
@@ -240,7 +241,7 @@ class IsLeaderOrReadOnly(BasePermission):
 
 # viewset
 
-class CharityOrganisationViewSet(viewsets.ModelViewSet):
+class CharityOrganisationViewSet(SoftDeleteViewSetMixin, viewsets.ModelViewSet):
     """
     CRUD for CharityOrganisations the church partners with or supports.
 
@@ -256,7 +257,7 @@ class CharityOrganisationViewSet(viewsets.ModelViewSet):
     permission_classes = [IsLeaderOrReadOnly]
 
 
-class ReadingPlanViewSet(viewsets.ModelViewSet):
+class ReadingPlanViewSet(SoftDeleteViewSetMixin, viewsets.ModelViewSet):
     """
     Routes (router prefix 'reading-plans/'):
 

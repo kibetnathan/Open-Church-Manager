@@ -15,8 +15,9 @@ Thanks for your interest in contributing to OCM! This document outlines how to g
 The quickest path is the Docker stack — it runs Postgres, the Django backend, and the Vite frontend with hot reload:
 
 ```bash
-cp backend/.env.example backend/.env   # then fill in secrets
-cp frontend/.env.example frontend/.env
+# create these locally (they are gitignored, no committed .env.example exists)
+# see README §Getting Started for the required variables
+touch backend/.env frontend/.env
 # place the Firebase service account key at backend/firebase-key.json
 make dev                                # http://localhost:5174
 make logs                               # follow container logs
@@ -41,11 +42,11 @@ python manage.py runserver
 ```bash
 cd ocm/frontend
 npm install
-cp .env.example .env
+# create .env per the README; VITE_API_URL must point at http://localhost:8000/api
 npm run dev
 ```
 
-`backend/.env`, `frontend/.env`, and `backend/firebase-key.json` are gitignored and required locally (copy from the README's examples and place the Firebase service-account key, or the backend will fail to start and API requests will fail auth).
+`backend/.env`, `frontend/.env`, and `backend/firebase-key.json` are gitignored and required locally (fill in per README §Getting Started; also set `VITE_API_URL=http://localhost:8000/api` in `frontend/.env`, or API calls silently target the production backend). Without `backend/firebase-key.json` the backend still boots, but API auth fails per request.
 
 ## Development Workflow
 

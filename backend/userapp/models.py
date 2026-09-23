@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from cloudinary.models import CloudinaryField
 from datetime import date
+from soft_delete import SoftDeleteModel
 
 class CustomUser(AbstractUser):
     firebase_uid = models.CharField(max_length=128, unique=True, null=True, blank=True)
@@ -10,7 +11,7 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return self.username
     
-class Profile(models.Model):
+class Profile(SoftDeleteModel):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name="profile")
     DoB = models.DateField(blank=True, null=True)
     school = models.TextField(blank=True)

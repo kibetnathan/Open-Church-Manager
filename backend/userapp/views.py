@@ -10,6 +10,7 @@ from .forms import CustomRegistrationForm
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.contrib.auth.models import Group
 from firebase_admin import auth, exceptions
+from soft_delete import SoftDeleteViewSetMixin
 
 
 class ProfileView(APIView):
@@ -58,7 +59,7 @@ class ProfileView(APIView):
             return Response({"status": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, *args, **kwargs):
-        """Delete the Profile identified by `kwargs['id']`; 404 if it does not exist."""
+        """Soft-delete the Profile identified by `kwargs['id']`; 404 if it does not exist."""
         try:
             profile = Profile.objects.get(id=kwargs['id'])
         except Profile.DoesNotExist:
@@ -68,7 +69,7 @@ class ProfileView(APIView):
         return Response({"status": "success", "data": "profile deleted"}, status=status.HTTP_200_OK)
 
 
-class ProfileViewSet(viewsets.ModelViewSet):
+class ProfileViewSet(SoftDeleteViewSetMixin, viewsets.ModelViewSet):
     """
     Router-backed CRUD for Profile, keyed by the related user's id rather than the
     Profile's own pk. This lets the frontend address profiles as `/profiles/{user_id}/`,

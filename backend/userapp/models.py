@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from cloudinary.models import CloudinaryField
 from datetime import date
+from soft_delete import SoftDeleteModel
 
 
 # Custom user currently has a firebase uid field in addition to user_id, not as a replacement
@@ -11,15 +12,8 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.username
-
-
-#  Extra details about users unrelated to auth are stored in a profile model created on registration (see forms.py)
-
-
-class Profile(models.Model):
-    user = models.OneToOneField(
-        CustomUser, on_delete=models.CASCADE, related_name="profile"
-    )
+class Profile(SoftDeleteModel):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name="profile")
     DoB = models.DateField(blank=True, null=True)
     school = models.TextField(blank=True)
     workplace = models.TextField(blank=True)

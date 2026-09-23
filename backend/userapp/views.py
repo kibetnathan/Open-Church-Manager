@@ -10,9 +10,66 @@ from .forms import CustomRegistrationForm
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.contrib.auth.models import Group
 from firebase_admin import auth, exceptions
+from soft_delete import SoftDeleteViewSetMixin
 
 
-class ProfileViewSet(viewsets.ModelViewSet):
+class ProfileView(APIView):
+    """
+    Function-style CRUD endpoint for Profile objects.
+
+    A thin wrapper around the Profile model that exposes list/create on the collection
+    and update/delete on a specific profile via `<id>` in the URL. All responses are
+    wrapped in a `{status, data|profile}` envelope for consistency with the frontend.
+
+    Methods:
+        GET    — list all profiles
+        POST   — create a new profile
+        PUT    — partial-update the profile with the given `id`
+        DELETE — delete the profile with the given `id`
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        """Return every Profile in the system wrapped in a success envelope."""
+        result = Profile.objects.all()
+        serializers = ProfileSerializer(result, many=True)
+        return Response({'status': 'success', "profile": serializers.data}, status=200)
+
+    def post(self, request):
+        """Create a new Profile from the request payload; returns 400 on validation error."""
+        serializer = ProfileSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"status": "success", "data": serializer.data}, status=status.HTTP_200_OK)
+        else:
+            return Response({"status": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, *args, **kwargs):
+        """Partially update the Profile identified by `kwargs['id']`; 404 if missing."""
+        try:
+            profile = Profile.objects.get(id=kwargs['id'])
+        except Profile.DoesNotExist:
+            return Response({"status": "error", "data": "profile not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ProfileSerializer(profile, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"status": "success", "data": serializer.data}, status=status.HTTP_200_OK)
+        else:
+            return Response({"status": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, *args, **kwargs):
+        """Soft-delete the Profile identified by `kwargs['id']`; 404 if it does not exist."""
+        try:
+            profile = Profile.objects.get(id=kwargs['id'])
+        except Profile.DoesNotExist:
+            return Response({"status": "error", "data": "profile not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        profile.delete()
+        return Response({"status": "success", "data": "profile deleted"}, status=status.HTTP_200_OK)
+
+
+class ProfileViewSet(SoftDeleteViewSetMixin, viewsets.ModelViewSet):
     """
     Router-backed CRUD for Profile, keyed by the related user's id rather than the
     Profile's own pk. This lets the frontend address profiles as `/profiles/{user_id}/`,

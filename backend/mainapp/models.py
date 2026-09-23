@@ -3,9 +3,9 @@ from django.utils import timezone
 from django.db import models
 from django.conf import settings
 from cloudinary.models import CloudinaryField
+from soft_delete import SoftDeleteModel
 
-
-class LeadershipTeam(models.Model):
+class LeadershipTeam(SoftDeleteModel):
     name = models.CharField(max_length=255)
     description = models.TextField()
     members = models.ManyToManyField(
@@ -15,8 +15,7 @@ class LeadershipTeam(models.Model):
     def __str__(self):
         return self.name
 
-
-class Department(models.Model):
+class Department(SoftDeleteModel):
     name = models.CharField(max_length=255)
     description = models.TextField()
     leader = models.ForeignKey(
@@ -29,8 +28,12 @@ class Department(models.Model):
         settings.AUTH_USER_MODEL, related_name="serving_team", blank=True
     )
 
+<<<<<<< HEAD
+class Services(SoftDeleteModel):
+=======
 
 class Services(models.Model):
+>>>>>>> origin/develop
     name = models.CharField(max_length=255)
     description = models.TextField()
     members = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="services")
@@ -49,8 +52,7 @@ class Services(models.Model):
     def equipment(self):
         return getattr(self, "assigned_equipment", None)
 
-
-class Equipment(models.Model):
+class Equipment(SoftDeleteModel):
     name = models.CharField(max_length=255)
     description = models.TextField()
     quantity = models.PositiveIntegerField(default=1)
@@ -72,9 +74,7 @@ class Equipment(models.Model):
 
 
 # Services
-
-
-class FellowshipGroup(models.Model):
+class FellowshipGroup(SoftDeleteModel):
     # in dgs leaders are also members
     name = models.CharField(max_length=255)
     description = models.TextField()
@@ -99,8 +99,7 @@ class FellowshipGroup(models.Model):
     def get_leader(self):
         return self.leader
 
-
-class Course(models.Model):
+class Course(SoftDeleteModel):
     name = models.CharField(max_length=255)
     description = models.TextField()
     start_date = models.DateField(default=timezone.now)
@@ -256,7 +255,7 @@ class MemorizationAttempt(models.Model):
         )
 
 
-class ReadingPlan(models.Model):
+class ReadingPlan(SoftDeleteModel):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     youversion_url = models.URLField(
@@ -323,7 +322,7 @@ class ReadingPlan(models.Model):
         )
 
 
-class CharityOrganisation(models.Model):
+class CharityOrganisation(SoftDeleteModel):
     name = models.CharField(max_length=255)
     description = models.TextField()
     banner = CloudinaryField("image", blank=True, null=True)

@@ -3,6 +3,7 @@ from django.contrib.auth.admin import UserAdmin
 
 from .forms import CustomUserCreationForm, CustomUserChangeForm
 from .models import CustomUser, Profile
+from soft_delete import SoftDeleteAdminMixin
 
 
 class CustomUserAdmin(UserAdmin):
@@ -17,5 +18,9 @@ class CustomUserAdmin(UserAdmin):
     ]
 
 
+class ProfileAdmin(SoftDeleteAdminMixin, admin.ModelAdmin):
+    list_display = ["user", "phone_number", "is_deleted"]
+
+
 admin.site.register(CustomUser, CustomUserAdmin,) 
-admin.site.register(Profile)
+admin.site.register(Profile, ProfileAdmin)

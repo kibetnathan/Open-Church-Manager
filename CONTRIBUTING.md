@@ -6,46 +6,63 @@ Thanks for your interest in contributing to OCM! This document outlines how to g
 
 ### Prerequisites
 
-- **Backend**: Python 3.11+, Django 4.x+, DRF (Django REST Framework)
-- **Frontend**: Node.js 18+, React 18+, Vite
-- **Services**: Firebase/Firestore, Cloudinary (optional for local dev)
+- **Backend**: Python 3.12+, Django 6.x, DRF (Django REST Framework)
+- **Frontend**: Node.js 20.19+, React 19+, Vite 7
+- **Services**: Firebase/Firestore, Cloudinary, Paystack (their secrets must be set in `backend/.env` or the backend will not start)
 
 ### Setup
 
+The quickest path is the Docker stack — it runs Postgres, the Django backend, and the Vite frontend with hot reload:
+
+```bash
+# create these locally (they are gitignored, no committed .env.example exists)
+# see README §Getting Started for the required variables
+touch backend/.env frontend/.env
+# place the Firebase service account key at backend/firebase-key.json
+make dev                                # http://localhost:5174
+make logs                               # follow container logs
+```
+
+Manual setup:
+
 #### Backend
+
 ```bash
 git clone https://github.com/yourusername/ocm.git
 cd ocm/backend
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+python -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 python manage.py migrate
 python manage.py runserver
 ```
 
 #### Frontend
+
 ```bash
 cd ocm/frontend
 npm install
+# create .env per the README; VITE_API_URL must point at http://localhost:8000/api
 npm run dev
 ```
+
+`backend/.env`, `frontend/.env`, and `backend/firebase-key.json` are gitignored and required locally (fill in per README §Getting Started; also set `VITE_API_URL=http://localhost:8000/api` in `frontend/.env`, or API calls silently target the production backend). Without `backend/firebase-key.json` the backend still boots, but API auth fails per request.
 
 ## Development Workflow
 
 ### Branching
 
-- Create feature branches off `main`: `git checkout -b feature/your-feature-name`
-- Use clear, descriptive names: `feature/bible-verse-highlighting`, `fix/firestore-listener-leak`, `docs/setup-instructions`
+- Long-lived branches are `main` and `develop`. Create feature branches off `develop`.
+- Use short, prefixed names that match the existing convention (e.g. `nk/<feature-slug>`).
 
 ### Commits
 
-- Make a commit after every logical change
-- No emojis in commit messages
-- Use imperative mood: "Add verse highlighting" not "Added verse highlighting"
-- Examples:
-  - `Add Bible verse highlighting in reader`
-  - `Fix Firestore listener memory leak in ThreadsPage`
-  - `Optimize query with select_related for sermon list`
+- Commits use `Type(Scope): Subject` with no emojis.
+- Examples from this repo:
+  - `Feat(SEO): Create a sitemap`
+  - `Fix(Dependencies): update requirements.txt`
+  - `Polish(UI): Fix contrast on the hero section`
+  - `Docs(API): Document the API endpoints with drf swagger`
 
 ### Pull Requests
 
@@ -58,23 +75,26 @@ npm run dev
 ### Backend (Django/DRF)
 
 **Structure**
+
 - Use ViewSets with custom actions for non-standard endpoints
 - Leverage `select_related` and `prefetch_related` for query optimization
 - Custom authentication via `FirebaseAuthentication` backend
 
 **Serializers**
+
 - Keep serializers focused; create nested serializers for related data
 - Validate at the serializer level, not the view
 - Use `SerializerMethodField` sparingly; prefer explicit methods
 
 **Views/Viewsets**
+
 ```python
 class SermonViewSet(viewsets.ModelViewSet):
     queryset = Sermon.objects.select_related('speaker').prefetch_related('tags')
     serializer_class = SermonSerializer
     authentication_classes = [FirebaseAuthentication]
     permission_classes = [IsAuthenticated]
-    
+
     @action(detail=True, methods=['post'])
     def mark_watched(self, request, pk=None):
         # Custom action logic
@@ -82,6 +102,7 @@ class SermonViewSet(viewsets.ModelViewSet):
 ```
 
 **Firebase Integration**
+
 - Use Firebase Auth tokens via `FirebaseAuthentication`
 - Always fetch user context from `request.user` (Firebase UID)
 - Don't hardcode Firebase config; use environment variables
@@ -89,6 +110,7 @@ class SermonViewSet(viewsets.ModelViewSet):
 ### Frontend (React/Vite)
 
 **State Management**
+
 - Use Zustand stores for global state
 - Flat store structure; avoid deeply nested reducers
 - Return `{ success, error }` from mutations
@@ -99,7 +121,7 @@ class SermonViewSet(viewsets.ModelViewSet):
 const useMainStore = create((set) => ({
   items: [],
   loading: false,
-  
+
   fetchItems: async () => {
     set({ loading: true });
     try {
@@ -112,22 +134,25 @@ const useMainStore = create((set) => ({
     } finally {
       set({ loading: false });
     }
-  }
+  },
 }));
 ```
 
 **Styling**
+
 - Use Tailwind CSS with arbitrary value syntax
 - Dark theme: `bg-[#0f0f0d]` for cards
 - Color palette: amber/stone tones, no gradients
 - Hazard stripe borders for emphasis: `border-l-4 border-amber-500`
 
 **Components**
+
 - Keep components small and focused
 - Extract logic into custom hooks
 - Use TypeScript for type safety (recommended)
 
 **Firebase Realtime Features**
+
 - Room ID naming: `fellowship_`, `leadership_`, `department_`, `course_` prefixes
 - Set up listeners in `useEffect`; clean up to prevent memory leaks
 - Example room: `fellowship_worship_team`
@@ -142,6 +167,7 @@ const useMainStore = create((set) => ({
 ## Testing
 
 ### Backend
+
 ```bash
 python manage.py test
 # or with coverage
@@ -149,15 +175,17 @@ coverage run --source='.' manage.py test
 coverage report
 ```
 
+Test suites live in `userapp/tests.py`, `communication/tests.py`, and `mainapp/tests/`.
+
 ### Frontend
+
+There is currently **no test suite** — `package.json` only has `dev`, `build`, `lint`, and `preview` scripts.
+
 ```bash
-npm run test
-# or watch mode
-npm run test:watch
+npm run lint
 ```
 
-- Write tests for new features
-- Aim for >80% coverage on critical paths
+- Run the linter after frontend changes
 
 ## Common Tasks
 
@@ -220,3 +248,4 @@ By contributing, you agree your work is licensed under the project's license (ch
 ---
 
 Thanks for making OCM better! 🙏
+

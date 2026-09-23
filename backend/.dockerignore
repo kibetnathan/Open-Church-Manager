@@ -1,0 +1,13 @@
+.venv
+venv
+__pycache__
+*.pyc
+*.sqlite3
+db.sqlite3
+staticfiles
+docs
+.env
+firebase-key.json
+*.log
+.DS_Store
+.vscode
